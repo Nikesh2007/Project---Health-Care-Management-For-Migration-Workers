@@ -1,0 +1,1539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Government of Kerala - Hospital Disease Tracking System</title>
+    <style>
+        :root {
+            /* Government of Kerala Colors */
+            --kerala-green: #228B22;
+            --kerala-saffron: #FF6347;
+            --kerala-white: #FFFFFF;
+            --kerala-blue: #003366;
+            --kerala-gold: #FFD700;
+            
+            /* Utility Colors */
+            --color-background: #f8f9fa;
+            --color-surface: #ffffff;
+            --color-text: #1f2121;
+            --color-text-secondary: #626c71;
+            --color-border: #dee2e6;
+            --color-border-light: #e9ecef;
+            --color-success: #28a745;
+            --color-danger: #dc3545;
+            --color-warning: #ffc107;
+            --color-info: #17a2b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: var(--color-text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header Styles */
+        .header {
+            background: linear-gradient(135deg, var(--kerala-green) 0%, var(--kerala-blue) 100%);
+            color: var(--kerala-white);
+            padding: 1.5rem 0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .kerala-emblem {
+            font-size: 3rem;
+            background: linear-gradient(135deg, var(--kerala-white), var(--kerala-gold));
+            border-radius: 50%;
+            width: 70px;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            border: 3px solid var(--kerala-white);
+        }
+
+        .header-text h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header-text p {
+            font-size: 1rem;
+            opacity: 0.95;
+            font-weight: 500;
+        }
+
+        /* Button Styles */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.875rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn--primary {
+            background: linear-gradient(135deg, var(--kerala-saffron), #e55347);
+            color: var(--kerala-white);
+            box-shadow: 0 4px 15px rgba(255, 99, 71, 0.4);
+        }
+
+        .btn--primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255, 99, 71, 0.5);
+        }
+
+        .btn--secondary {
+            background: linear-gradient(135deg, #6c757d, #5a6268);
+            color: var(--kerala-white);
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.3);
+        }
+
+        .btn--secondary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(108, 117, 125, 0.4);
+        }
+
+        .btn--outline {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--kerala-green);
+            border: 2px solid var(--kerala-green);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn--outline:hover {
+            background: var(--kerala-green);
+            color: var(--kerala-white);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(34, 139, 34, 0.3);
+        }
+
+        /* Main Content */
+        .main-content {
+            padding: 3rem 0;
+            min-height: calc(100vh - 200px);
+        }
+
+        .dashboard {
+            display: grid;
+            gap: 2rem;
+        }
+
+        /* Controls Section */
+        .controls-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--color-surface);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+
+        .search-controls,
+        .export-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .form-control {
+            padding: 1rem 1.5rem;
+            border: 2px solid var(--color-border);
+            border-radius: 50px;
+            font-size: 0.95rem;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--color-text);
+            transition: all 0.3s ease;
+            width: 300px;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--kerala-green);
+            box-shadow: 0 0 0 3px rgba(34, 139, 34, 0.1);
+            background: var(--color-surface);
+            transform: translateY(-2px);
+        }
+
+        /* Loading, Error, and No Data States */
+        .loading-state,
+        .error-state,
+        .no-data-state {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 4rem 2rem;
+            background: var(--color-surface);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .loading-state {
+            display: flex;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--color-border);
+            border-top: 4px solid var(--kerala-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .error-icon,
+        .no-data-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            opacity: 0.7;
+        }
+
+        /* Dashboard Content */
+        .dashboard-content {
+            display: none;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+            align-items: start;
+        }
+
+        /* Table Section */
+        .table-section {
+            background: var(--color-surface);
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--kerala-green), var(--kerala-blue));
+            color: var(--kerala-white);
+        }
+
+        .table-header h2 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .table-info {
+            font-size: 1rem;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95rem;
+        }
+
+        .data-table th {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            color: var(--color-text);
+            padding: 1.25rem;
+            text-align: left;
+            font-weight: 700;
+            border-bottom: 3px solid var(--kerala-green);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .data-table th.sortable {
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.3s ease;
+        }
+
+        .data-table th.sortable:hover {
+            background: linear-gradient(135deg, #e9ecef, #dee2e6);
+            transform: translateY(-2px);
+        }
+
+        .sort-indicator {
+            margin-left: 0.5rem;
+            opacity: 0.6;
+            font-size: 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .data-table th.sortable:hover .sort-indicator {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+
+        .data-table td {
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--color-border-light);
+            vertical-align: middle;
+            transition: all 0.3s ease;
+        }
+
+        .data-table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .data-table tbody tr:hover {
+            background: linear-gradient(135deg, rgba(34, 139, 34, 0.05), rgba(0, 51, 102, 0.05));
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .data-table tbody tr:nth-child(even) {
+            background: rgba(248, 249, 250, 0.8);
+        }
+
+        /* Statistics Panel */
+        .stats-panel {
+            background: var(--color-surface);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+            position: sticky;
+            top: 140px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stats-panel h3 {
+            color: var(--kerala-green);
+            margin-bottom: 2rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            position: relative;
+        }
+
+        .stats-panel h3::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 50px;
+            height: 3px;
+            background: linear-gradient(135deg, var(--kerala-green), var(--kerala-blue));
+            border-radius: 2px;
+        }
+
+        .stat-card {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background: linear-gradient(135deg, rgba(34, 139, 34, 0.05), rgba(0, 51, 102, 0.05));
+            border-radius: 15px;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(34, 139, 34, 0.1);
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+            background: linear-gradient(135deg, rgba(34, 139, 34, 0.1), rgba(0, 51, 102, 0.1));
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            opacity: 0.8;
+            width: 60px;
+            text-align: center;
+        }
+
+        .stat-content {
+            flex: 1;
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: var(--kerala-green);
+            line-height: 1;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--color-text-secondary);
+            margin-top: 0.5rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Distribution Lists */
+        .pincode-distribution,
+        .disease-distribution {
+            margin-top: 2.5rem;
+        }
+
+        .pincode-distribution h4,
+        .disease-distribution h4 {
+            color: var(--color-text);
+            margin-bottom: 1.5rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .pincode-item,
+        .disease-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(147, 51, 234, 0.05));
+            border-radius: 10px;
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(59, 130, 246, 0.1);
+        }
+
+        .pincode-item:hover,
+        .disease-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .pincode-item .pincode,
+        .disease-item .disease {
+            font-weight: 600;
+            color: var(--color-text);
+        }
+
+        .pincode-item .count,
+        .disease-item .count {
+            background: linear-gradient(135deg, var(--kerala-green), var(--kerala-blue));
+            color: var(--kerala-white);
+            padding: 0.4rem 1rem;
+            border-radius: 25px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            min-width: 35px;
+            text-align: center;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 2000;
+            overflow-y: auto;
+            padding: 2rem;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal {
+            background: var(--color-surface);
+            border-radius: 20px;
+            max-width: 550px;
+            margin: 2rem auto;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            animation: modalSlideIn 0.4s ease;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, var(--kerala-green), var(--kerala-blue));
+            color: var(--kerala-white);
+            border-radius: 20px 20px 0 0;
+        }
+
+        .modal-header h3 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-close {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: var(--kerala-white);
+            padding: 0;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: rotate(90deg);
+        }
+
+        .modal-body {
+            padding: 2.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 2rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: 700;
+            color: var(--color-text);
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group .form-control,
+        .form-group select {
+            width: 100%;
+            padding: 1rem 1.5rem;
+            border: 2px solid var(--color-border);
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .form-group .form-control:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: var(--kerala-green);
+            box-shadow: 0 0 0 3px rgba(34, 139, 34, 0.1);
+            background: var(--color-surface);
+            transform: translateY(-2px);
+        }
+
+        .form-help {
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            color: var(--color-text-secondary);
+            font-style: italic;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            padding: 2rem;
+            background: rgba(248, 249, 250, 0.5);
+            border-radius: 0 0 20px 20px;
+            border-top: 1px solid var(--color-border-light);
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            top: 120px;
+            right: 30px;
+            background: var(--color-surface);
+            border-radius: 15px;
+            padding: 1.25rem 2rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+            z-index: 3000;
+            transform: translateX(400px);
+            transition: all 0.4s ease;
+            max-width: 350px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast-content {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .toast-icon {
+            font-size: 1.5rem;
+        }
+
+        .toast-message {
+            font-weight: 600;
+            color: var(--color-text);
+            font-size: 0.95rem;
+        }
+
+        .toast.success {
+            border-left: 5px solid var(--color-success);
+        }
+
+        .toast.error {
+            border-left: 5px solid var(--color-danger);
+        }
+
+        /* Footer */
+        .footer {
+            background: linear-gradient(135deg, #2c3e50, #34495e);
+            color: var(--kerala-white);
+            padding: 3rem 0 1.5rem;
+            margin-top: 4rem;
+            position: relative;
+        }
+
+        .footer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--kerala-green), var(--kerala-saffron), var(--kerala-blue));
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 3rem;
+            margin-bottom: 2rem;
+        }
+
+        .footer-section h4 {
+            color: var(--kerala-gold);
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-section p {
+            line-height: 1.8;
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.95rem;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 15px;
+            }
+
+            .header-content {
+                flex-direction: column;
+                text-align: center;
+                gap: 1.5rem;
+            }
+
+            .controls-section {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-controls,
+            .export-controls {
+                justify-content: center;
+            }
+
+            .form-control {
+                width: 100%;
+                max-width: none;
+            }
+
+            .dashboard-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .stats-panel {
+                position: static;
+                order: -1;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 1rem 0.75rem;
+                font-size: 0.85rem;
+            }
+
+            .modal {
+                margin: 1rem auto;
+                max-width: calc(100% - 2rem);
+            }
+
+            .modal-footer {
+                flex-direction: column-reverse;
+            }
+
+            .modal-footer .btn {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .toast {
+                right: 15px;
+                left: 15px;
+                max-width: none;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .kerala-emblem {
+                width: 60px;
+                height: 60px;
+                font-size: 2.5rem;
+            }
+
+            .header-text h1 {
+                font-size: 1.5rem;
+            }
+
+            .header-text p {
+                font-size: 0.9rem;
+            }
+
+            .data-table th,
+            .data-table td {
+                padding: 0.75rem 0.5rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        /* Print Styles */
+        @media print {
+            .header-actions,
+            .controls-section,
+            .stats-panel,
+            .modal-overlay,
+            .toast,
+            .footer {
+                display: none !important;
+            }
+
+            .dashboard-content {
+                grid-template-columns: 1fr !important;
+            }
+
+            body {
+                background: white !important;
+                color: black !important;
+            }
+
+            .table-section {
+                box-shadow: none !important;
+                border: 1px solid #000;
+            }
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dashboard-content {
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .stat-card {
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .stat-card:nth-child(2) { animation-delay: 0.1s; }
+        .stat-card:nth-child(3) { animation-delay: 0.2s; }
+        .stat-card:nth-child(4) { animation-delay: 0.3s; }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="header-content">
+                <div class="logo-section">
+                    <div class="kerala-emblem">🏛️</div>
+                    <div class="header-text">
+                        <h1>Government of Kerala</h1>
+                        <p>Health Department - Disease Tracking System</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                  
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <div class="container">
+            <div class="dashboard">
+                <!-- Controls Section -->
+                <div class="controls-section">
+                    <div class="search-controls">
+                        <input
+                            type="text"
+                            class="form-control"
+                            id="pincodeSearch"
+                            placeholder="🔍 Search by Pincode..."
+                        />
+                        <button class="btn btn--secondary" id="clearSearch">Clear</button>
+                    </div>
+                    <div class="export-controls">
+                        <button class="btn btn--outline" id="exportCsv">📊 Export CSV</button>
+                        <button class="btn btn--outline" id="printTable">🖨️ Print</button>
+                    </div>
+                </div>
+
+                <!-- Loading State -->
+                <div class="loading-state" id="loadingState">
+                    <div class="loading-spinner"></div>
+                    <p style="font-size: 1.1rem; font-weight: 600; color: var(--kerala-green);">Loading patient data...</p>
+                </div>
+
+                <!-- Error State -->
+                <div class="error-state" id="errorState">
+                    <div class="error-icon">⚠️</div>
+                    <h3>Connection Error</h3>
+                    <p id="errorMessage">Failed to connect to database</p>
+                    <button class="btn btn--primary" id="retryBtn">🔄 Retry Connection</button>
+                </div>
+
+                <!-- Dashboard Content -->
+                <div class="dashboard-content" id="dashboardContent">
+                    <!-- Main Table Section -->
+                    <div class="table-section">
+                        <div class="table-header">
+                            <h2>📋 Patient Disease Tracking</h2>
+                            <div class="table-info">
+                                <span id="totalRecords">Total: 0 patients</span>
+                            </div>
+                        </div>
+
+                        <div class="table-container">
+                            <table class="data-table" id="patientsTable">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>👤 Patient Name</th>
+                                        <th class="sortable" id="pincodeHeader">
+                                            📍 Pincode
+                                            <span class="sort-indicator" id="sortIndicator">↕️</span>
+                                        </th>
+                                        <th>🎂 Age</th>
+                                        <th>⚧️ Sex</th>
+                                        <th>🆔 Aadhar</th>
+                                        <th>🦠 Disease Name</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableBody">
+                                    <!-- Patient data will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- No Data State -->
+                        <div class="no-data-state" id="noDataState">
+                            <div class="no-data-icon">📊</div>
+                            <h3>No Patient Data Found</h3>
+                            <p>No patients found matching your search criteria</p>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Panel -->
+                    <div class="stats-panel">
+                        <h3>📊 Statistics Overview</h3>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">👥</div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="totalPatients">0</div>
+                                <div class="stat-label">Total Patients</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">📍</div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="uniquePincodes">0</div>
+                                <div class="stat-label">Unique Pincodes</div>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">🦠</div>
+                            <div class="stat-content">
+                                <div class="stat-value" id="diseaseCount">0</div>
+                                <div class="stat-label">Disease Cases</div>
+                            </div>
+                        </div>
+
+                        <!-- Pincode Distribution -->
+                        <div class="pincode-distribution">
+                            <h4>🏆 Top Pincodes</h4>
+                            <div id="pincodeList">
+                                <div class="pincode-item">
+                                    <span class="pincode">Loading...</span>
+                                    <span class="count">-</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Disease Distribution (Placeholder) -->
+                        <div class="disease-distribution">
+                            <h4>🔁 Disease Repeat Count</h4>
+                            <div id="diseaseList">
+                                <div class="disease-item">
+                                    <span class="disease">Awaiting AWS Integration</span>
+                                    <span class="count">-</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Patient Modal -->
+    <div class="modal-overlay" id="addPatientModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>➕ Add New Patient</h3>
+                <button class="modal-close" id="closeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="addPatientForm">
+                    <div class="form-group">
+                        <label for="patientName">👤 Patient Name *</label>
+                        <input type="text" id="patientName" name="name" class="form-control" required />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="patientPincode">📍 Pincode *</label>
+                        <input
+                            type="text"
+                            id="patientPincode"
+                            name="pincode"
+                            class="form-control"
+                            pattern="[0-9]{6}"
+                            maxlength="6"
+                            required
+                        />
+                        <small class="form-help">Enter 6-digit pincode</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="patientAge">🎂 Age *</label>
+                        <input
+                            type="number"
+                            id="patientAge"
+                            name="age"
+                            class="form-control"
+                            min="0"
+                            max="120"
+                            required
+                        />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="patientSex">⚧️ Sex *</label>
+                        <select id="patientSex" name="sex" class="form-control" required>
+                            <option value="">Select Sex</option>
+                            <option value="Male">Male</option>
+                            <option value="Female">Female</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="aadharNumber">🆔 Aadhar Number *</label>
+                        <input
+                            type="text"
+                            id="aadharNumber"
+                            name="aadhar"
+                            class="form-control"
+                            pattern="[0-9]{12}"
+                            maxlength="12"
+                            required
+                        />
+                        <small class="form-help">Enter 12-digit Aadhar number</small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn--secondary" id="cancelBtn">❌ Cancel</button>
+                <button type="submit" class="btn btn--primary" id="submitBtn" form="addPatientForm">
+                    ✅ Add Patient
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success/Error Messages -->
+    <div class="toast" id="toast">
+        <div class="toast-content">
+            <span class="toast-icon" id="toastIcon">✅</span>
+            <span class="toast-message" id="toastMessage">Success!</span>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>🏛️ Government of Kerala</h4>
+                    <p>Health Department<br />Disease Tracking System<br />Ensuring Public Health Safety</p>
+                </div>
+                <div class="footer-section">
+                    <h4>📞 Contact Information</h4>
+                    <p>📧 Email: health@kerala.gov.in<br />📱 Phone: +91-471-2xxxxxx<br />🌐 Website: kerala.gov.in</p>
+                </div>
+                <div class="footer-section">
+                    <h4>⚖️ Disclaimer</h4>
+                    <p>This is an official Government of Kerala website. All patient data is strictly confidential and protected under data protection laws.</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Government of Kerala. All rights reserved. | Developed for public health safety.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyA-8Lmpqdo7D9tSgROx6MFVxnu-ClcyCec",
+            authDomain: "healthbuddie-patient.firebaseapp.com",
+            projectId: "healthbuddie-patient",
+            storageBucket: "healthbuddie-patient.firebasestorage.app",
+            messagingSenderId: "684488461470",
+            appId: "1:684488461470:web:a852a2f324e7075ed2bf8f"
+        };
+
+        // Global variables
+        let patientsData = [];
+        let filteredData = [];
+        let sortDirection = 'asc';
+        let db = null;
+
+        // Initialize Firebase
+        async function initializeFirebase() {
+            try {
+                const { initializeApp } = await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js');
+                const { getFirestore, collection, getDocs, addDoc, doc, setDoc } = await import('https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js');
+                
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                
+                window.firestoreFunctions = { collection, getDocs, addDoc, doc, setDoc };
+                
+                console.log('Firebase initialized successfully');
+                return true;
+            } catch (error) {
+                console.error('Firebase initialization failed:', error);
+                showError('Failed to initialize Firebase connection');
+                return false;
+            }
+        }
+
+        // Show loading state
+        function showLoading() {
+            document.getElementById('loadingState').style.display = 'flex';
+            document.getElementById('dashboardContent').style.display = 'none';
+            document.getElementById('errorState').style.display = 'none';
+        }
+
+        // Show dashboard
+        function showDashboard() {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('dashboardContent').style.display = 'grid';
+            document.getElementById('errorState').style.display = 'none';
+        }
+
+        // Show error state
+        function showError(message) {
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('dashboardContent').style.display = 'none';
+            document.getElementById('errorState').style.display = 'flex';
+            document.getElementById('errorMessage').textContent = message;
+        }
+
+        // Load patient data from Firebase (Updated for new structure)
+        async function loadPatientData() {
+            try {
+                if (!db || !window.firestoreFunctions) {
+                    throw new Error('Firebase not initialized');
+                }
+
+                const { collection, getDocs } = window.firestoreFunctions;
+                const querySnapshot = await getDocs(collection(db, 'patients'));
+                
+                patientsData = [];
+                let serialNo = 1;
+                
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const aadharNumber = doc.id; // Document ID is the Aadhar number
+                    
+                    // Data is directly in the document, not nested in an "aadhar" field
+                    patientsData.push({
+                        id: doc.id,
+                        serialNo: serialNo++,
+                        name: data.name || 'N/A',
+                        pincode: data.pincode || 'N/A',
+                        age: data.age || 'N/A',
+                        sex: data.sex || 'N/A',
+                        aadhar: aadharNumber,
+                        diseaseName: 'To be integrated' // Placeholder for AWS integration
+                    });
+                });
+
+                filteredData = [...patientsData];
+                updateTable();
+                updateStatistics();
+                showDashboard();
+
+            } catch (error) {
+                console.error('Error loading patient data:', error);
+                showError('Failed to load patient data: ' + error.message);
+            }
+        }
+
+        // Update the table with current data
+        function updateTable() {
+            const tableBody = document.getElementById('tableBody');
+            const noDataState = document.getElementById('noDataState');
+            const totalRecords = document.getElementById('totalRecords');
+
+            if (filteredData.length === 0) {
+                tableBody.innerHTML = '';
+                noDataState.style.display = 'flex';
+                totalRecords.textContent = 'Total: 0 patients';
+                return;
+            }
+
+            noDataState.style.display = 'none';
+            totalRecords.textContent = `Total: ${filteredData.length} patient${filteredData.length !== 1 ? 's' : ''}`;
+
+            tableBody.innerHTML = filteredData.map(patient => `
+                <tr>
+                    <td>${patient.serialNo}</td>
+                    <td>${patient.name}</td>
+                    <td>${patient.pincode}</td>
+                    <td>${patient.age}</td>
+                    <td>${patient.sex}</td>
+                    <td>${patient.aadhar}</td>
+                    <td><em style="color: #6c757d;">${patient.diseaseName}</em></td>
+                </tr>
+            `).join('');
+        }
+
+        // Update statistics panel
+        function updateStatistics() {
+            document.getElementById('totalPatients').textContent = patientsData.length;
+
+            const uniquePincodes = new Set(patientsData.map(p => p.pincode).filter(p => p !== 'N/A'));
+            document.getElementById('uniquePincodes').textContent = uniquePincodes.size;
+
+            document.getElementById('diseaseCount').textContent = '0';
+
+            updatePincodeDistribution();
+        }
+
+        // Update pincode distribution
+        function updatePincodeDistribution() {
+            const pincodeCount = {};
+            patientsData.forEach(patient => {
+                if (patient.pincode !== 'N/A') {
+                    pincodeCount[patient.pincode] = (pincodeCount[patient.pincode] || 0) + 1;
+                }
+            });
+
+            const sortedPincodes = Object.entries(pincodeCount)
+                .sort(([,a], [,b]) => b - a)
+                .slice(0, 5);
+
+            const pincodeList = document.getElementById('pincodeList');
+            
+            if (sortedPincodes.length === 0) {
+                pincodeList.innerHTML = '<div class="pincode-item"><span class="pincode">No data</span><span class="count">0</span></div>';
+                return;
+            }
+
+            pincodeList.innerHTML = sortedPincodes.map(([pincode, count]) => `
+                <div class="pincode-item">
+                    <span class="pincode">${pincode}</span>
+                    <span class="count">${count}</span>
+                </div>
+            `).join('');
+        }
+
+        // Sort table by pincode
+        function sortByPincode() {
+            const sortIndicator = document.getElementById('sortIndicator');
+            
+            filteredData.sort((a, b) => {
+                const aVal = a.pincode === 'N/A' ? '' : a.pincode;
+                const bVal = b.pincode === 'N/A' ? '' : b.pincode;
+                
+                if (sortDirection === 'asc') {
+                    return aVal.localeCompare(bVal);
+                } else {
+                    return bVal.localeCompare(aVal);
+                }
+            });
+
+            sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
+            sortIndicator.textContent = sortDirection === 'asc' ? '⬆️' : '⬇️';
+
+            updateTable();
+        }
+
+        // Search functionality
+        function searchByPincode(searchTerm) {
+            if (!searchTerm.trim()) {
+                filteredData = [...patientsData];
+            } else {
+                filteredData = patientsData.filter(patient => 
+                    patient.pincode.includes(searchTerm.trim())
+                );
+            }
+            updateTable();
+        }
+
+        // Add new patient (Updated for new structure)
+        async function addNewPatient(patientData) {
+            try {
+                if (!db || !window.firestoreFunctions) {
+                    throw new Error('Firebase not initialized');
+                }
+
+                const { doc, setDoc } = window.firestoreFunctions;
+                
+                // Use Aadhar number as document ID
+                const docData = {
+                    name: patientData.name,
+                    pincode: patientData.pincode,
+                    age: parseInt(patientData.age),
+                    sex: patientData.sex,
+                    createdAt: new Date()
+                };
+
+                // Set document with Aadhar number as ID
+                await setDoc(doc(db, 'patients', patientData.aadhar), docData);
+                
+                showToast('Patient added successfully!', 'success');
+                
+                showLoading();
+                await loadPatientData();
+                
+            } catch (error) {
+                console.error('Error adding patient:', error);
+                showToast('Failed to add patient: ' + error.message, 'error');
+            }
+        }
+
+        // Export to CSV
+        function exportToCSV() {
+            const headers = ['Serial No', 'Patient Name', 'Pincode', 'Age', 'Sex', 'Aadhar', 'Disease Name'];
+            const csvContent = [
+                headers.join(','),
+                ...filteredData.map(patient => [
+                    patient.serialNo,
+                    `"${patient.name}"`,
+                    patient.pincode,
+                    patient.age,
+                    patient.sex,
+                    patient.aadhar,
+                    `"${patient.diseaseName}"`
+                ].join(','))
+            ].join('\n');
+
+            const blob = new Blob([csvContent], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `kerala-hospital-patients-${new Date().toISOString().split('T')[0]}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+            
+            showToast('Data exported successfully!', 'success');
+        }
+
+        // Print table
+        function printTable() {
+            window.print();
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastMessage = document.getElementById('toastMessage');
+
+            toast.className = `toast ${type}`;
+            toastIcon.textContent = type === 'success' ? '✅' : '❌';
+            toastMessage.textContent = message;
+
+            toast.classList.add('show');
+
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Modal functions
+        function openModal() {
+            document.getElementById('addPatientModal').style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('addPatientModal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+            document.getElementById('addPatientForm').reset();
+        }
+
+        // Form validation
+        function validateForm(formData) {
+            const errors = [];
+
+            if (!formData.name.trim()) {
+                errors.push('Patient name is required');
+            }
+
+            if (!formData.pincode.match(/^[0-9]{6}$/)) {
+                errors.push('Pincode must be exactly 6 digits');
+            }
+
+            if (!formData.age || formData.age < 0 || formData.age > 120) {
+                errors.push('Age must be between 0 and 120');
+            }
+
+            if (!formData.sex) {
+                errors.push('Sex is required');
+            }
+
+            if (!formData.aadhar.match(/^[0-9]{12}$/)) {
+                errors.push('Aadhar number must be exactly 12 digits');
+            }
+
+            return errors;
+        }
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', async function() {
+            showLoading();
+            const firebaseInitialized = await initializeFirebase();
+            
+            if (firebaseInitialized) {
+                await loadPatientData();
+            }
+
+            // Search functionality
+            const searchInput = document.getElementById('pincodeSearch');
+            searchInput.addEventListener('input', (e) => {
+                searchByPincode(e.target.value);
+            });
+
+            // Clear search
+            document.getElementById('clearSearch').addEventListener('click', () => {
+                searchInput.value = '';
+                searchByPincode('');
+            });
+
+            // Sort by pincode
+            document.getElementById('pincodeHeader').addEventListener('click', sortByPincode);
+
+            // Export functionality
+            document.getElementById('exportCsv').addEventListener('click', exportToCSV);
+            document.getElementById('printTable').addEventListener('click', printTable);
+
+            // Modal controls
+            document.getElementById('addPatientBtn').addEventListener('click', openModal);
+            document.getElementById('closeModal').addEventListener('click', closeModal);
+            document.getElementById('cancelBtn').addEventListener('click', closeModal);
+
+            // Close modal on overlay click
+            document.getElementById('addPatientModal').addEventListener('click', (e) => {
+                if (e.target.id === 'addPatientModal') {
+                    closeModal();
+                }
+            });
+
+            // Form submission
+            document.getElementById('addPatientForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = new FormData(e.target);
+                const patientData = {
+                    name: formData.get('name'),
+                    pincode: formData.get('pincode'),
+                    age: formData.get('age'),
+                    sex: formData.get('sex'),
+                    aadhar: formData.get('aadhar')
+                };
+
+                const errors = validateForm(patientData);
+                if (errors.length > 0) {
+                    showToast(errors.join(', '), 'error');
+                    return;
+                }
+
+                await addNewPatient(patientData);
+                closeModal();
+            });
+
+            // Retry connection
+            document.getElementById('retryBtn').addEventListener('click', async () => {
+                showLoading();
+                const firebaseInitialized = await initializeFirebase();
+                
+                if (firebaseInitialized) {
+                    await loadPatientData();
+                }
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && document.getElementById('addPatientModal').style.display === 'flex') {
+                    closeModal();
+                }
+                
+                if (e.ctrlKey && e.key === 'f') {
+                    e.preventDefault();
+                    searchInput.focus();
+                }
+                
+                if (e.ctrlKey && e.key === 'n') {
+                    e.preventDefault();
+                    openModal();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
