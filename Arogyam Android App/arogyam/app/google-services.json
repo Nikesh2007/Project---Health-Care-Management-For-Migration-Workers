@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "684488461470",
+    "project_id": "healthbuddie-patient",
+    "storage_bucket": "healthbuddie-patient.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:684488461470:android:a7ab02278dce7715d2bf8f",
+        "android_client_info": {
+          "package_name": "com.example.arogyam"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "684488461470-jichutvflv495lg44ecpiikmdvk76vb1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBTcRrDvSVsNxtA-yDVniUDwca157R0chw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "684488461470-jichutvflv495lg44ecpiikmdvk76vb1.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
