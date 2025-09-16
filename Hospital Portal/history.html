@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patient History - Hospital Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <!-- Dashboard -->
+  <div class="min-h-screen flex flex-col">
+    <!-- Top Navigation Bar -->
+    <div class="bg-blue-600 text-white flex items-center justify-between px-6 py-3 shadow-md">
+      <!-- Left: Logo + Title -->
+      <div class="flex items-center space-x-3">
+        <img src="https://upload.wikimedia.org/wikipedia/en/thumb/4/4b/SRM_University_Logo.svg/1200px-SRM_University_Logo.svg.png" 
+             class="h-8" alt="Logo">
+        <span class="font-bold text-lg">Hospital Dashboard</span>
+      </div>
+      <!-- Center: Navigation Links -->
+      <div class="flex items-center space-x-6">
+        <a href="dashboard.html" class="hover:underline">🏠 Home</a>
+        <a href="dashboard.html" onclick="showAddPatient()" class="hover:underline">➕ Add Patient</a>
+        <a href="history.html" class="hover:underline bg-white text-blue-600 px-2 py-1 rounded">📜 History</a>
+        <a href="search.html" class="hover:underline">🔍 Search</a>
+      </div>
+      <!-- Right: Hospital Name + Logout -->
+      <div class="flex items-center space-x-3">
+        <span class="font-semibold" id="hospitalNameNav"></span>
+        <button onclick="logout()" 
+                class="bg-white text-blue-600 px-3 py-1 rounded hover:bg-gray-200">
+          Logout
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 p-8">
+      <!-- Page Header -->
+      <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">📜 Patient History</h1>
+        <p class="text-gray-600">Complete record of all patients admitted to the hospital</p>
+      </div>
+
+      <!-- Patient History Table -->
+      <div class="bg-white rounded-lg shadow-md overflow-hidden">
+        <div class="px-6 py-4 bg-gray-50 border-b">
+          <h2 class="text-xl font-semibold text-gray-800">Patient Records</h2>
+          <p class="text-gray-600 text-sm mt-1">Total Records: <span id="totalRecords">0</span></p>
+        </div>
+        
+        <div class="overflow-x-auto">
+          <table class="w-full table-auto">
+            <thead class="bg-blue-600 text-white">
+              <tr>
+                <th class="px-4 py-3 text-left font-semibold">Serial No.</th>
+                <th class="px-4 py-3 text-left font-semibold">Patient Name</th>
+                <th class="px-4 py-3 text-left font-semibold">Age</th>
+                <th class="px-4 py-3 text-left font-semibold">Aadhaar ID</th>
+                <th class="px-4 py-3 text-left font-semibold">Disease</th>
+                <th class="px-4 py-3 text-left font-semibold">Department</th>
+                <th class="px-4 py-3 text-left font-semibold">Admission Date</th>
+                <th class="px-4 py-3 text-left font-semibold">Status</th>
+              </tr>
+            </thead>
+            <tbody id="patientHistoryTable" class="divide-y divide-gray-200">
+              <!-- Patient rows will be populated here -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Empty State -->
+        <div id="emptyState" class="hidden text-center py-12">
+          <div class="text-gray-400 text-6xl mb-4">📋</div>
+          <h3 class="text-xl font-semibold text-gray-600 mb-2">No Patient Records Found</h3>
+          <p class="text-gray-500">Start by adding patients to see their history here.</p>
+          <a href="dashboard.html" class="inline-block mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700">
+            Go to Dashboard
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Department mapping based on common diseases
+    const departmentMapping = {
+      // Cardiology
+      'heart': 'Cardiology',
+      'cardiac': 'Cardiology',
+      'blood pressure': 'Cardiology',
+      'hypertension': 'Cardiology',
+      'chest pain': 'Cardiology',
+      
+      // Orthopedics
+      'fracture': 'Orthopedics',
+      'bone': 'Orthopedics',
+      'joint': 'Orthopedics',
+      'arthritis': 'Orthopedics',
+      'back pain': 'Orthopedics',
+      
+      // Neurology
+      'headache': 'Neurology',
+      'migraine': 'Neurology',
+      'seizure': 'Neurology',
+      'stroke': 'Neurology',
+      'brain': 'Neurology',
+      
+      // Gastroenterology
+      'stomach': 'Gastroenterology',
+      'gastric': 'Gastroenterology',
+      'liver': 'Gastroenterology',
+      'intestine': 'Gastroenterology',
+      'digestive': 'Gastroenterology',
+      
+      // Respiratory
+      'lung': 'Pulmonology',
+      'asthma': 'Pulmonology',
+      'pneumonia': 'Pulmonology',
+      'breathing': 'Pulmonology',
+      'cough': 'Pulmonology',
+      
+      // Dermatology
+      'skin': 'Dermatology',
+      'rash': 'Dermatology',
+      'allergy': 'Dermatology',
+      
+      // Pediatrics
+      'child': 'Pediatrics',
+      'infant': 'Pediatrics',
+      
+      // Emergency
+      'emergency': 'Emergency',
+      'accident': 'Emergency',
+      'trauma': 'Emergency',
+      
+      // Oncology
+      'cancer': 'Oncology',
+      'tumor': 'Oncology',
+      
+      // Gynecology
+      'pregnancy': 'Gynecology',
+      'gynec': 'Gynecology',
+      
+      // Urology
+      'kidney': 'Urology',
+      'urine': 'Urology',
+      'bladder': 'Urology'
+    };
+
+    // Function to determine department based on disease
+    function getDepartment(disease) {
+      const lowerDisease = disease.toLowerCase();
+      
+      for (const keyword in departmentMapping) {
+        if (lowerDisease.includes(keyword)) {
+          return departmentMapping[keyword];
+        }
+      }
+      
+      // Default department if no match found
+      return 'General Medicine';
+    }
+
+    // Function to generate random status
+    function getRandomStatus() {
+      const statuses = ['Active', 'Discharged', 'Under Treatment', 'Critical', 'Recovered'];
+      const statusColors = {
+        'Active': 'bg-blue-100 text-blue-800',
+        'Discharged': 'bg-green-100 text-green-800',
+        'Under Treatment': 'bg-yellow-100 text-yellow-800',
+        'Critical': 'bg-red-100 text-red-800',
+        'Recovered': 'bg-purple-100 text-purple-800'
+      };
+      
+      const randomStatus = statuses[Math.floor(Math.random() * statuses.length)];
+      return {
+        status: randomStatus,
+        colorClass: statusColors[randomStatus]
+      };
+    }
+
+    // Function to format date
+    function formatDate(dateStr) {
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+      });
+    }
+
+    // Function to load and display patient history
+    function loadPatientHistory() {
+      const patients = JSON.parse(localStorage.getItem("patients") || "[]");
+      const patientHistoryTable = document.getElementById("patientHistoryTable");
+      const totalRecords = document.getElementById("totalRecords");
+      const emptyState = document.getElementById("emptyState");
+
+      // Update total records count
+      totalRecords.textContent = patients.length;
+
+      if (patients.length === 0) {
+        // Show empty state
+        emptyState.classList.remove("hidden");
+        return;
+      }
+
+      emptyState.classList.add("hidden");
+
+      // Generate table rows
+      let tableHTML = "";
+      patients.forEach((patient, index) => {
+        const department = getDepartment(patient.disease);
+        const statusInfo = getRandomStatus();
+        const admissionDate = patient.admissionDate || new Date().toISOString().split('T')[0];
+        
+        tableHTML += `
+          <tr class="hover:bg-gray-50 transition-colors">
+            <td class="px-4 py-3 font-medium text-gray-900">${index + 1}</td>
+            <td class="px-4 py-3">
+              <div class="font-medium text-gray-900">${patient.name}</div>
+            </td>
+            <td class="px-4 py-3 text-gray-700">${patient.age} years</td>
+            <td class="px-4 py-3 text-gray-700 font-mono">${patient.aadhar}</td>
+            <td class="px-4 py-3">
+              <span class="inline-block bg-gray-100 text-gray-800 px-2 py-1 rounded-full text-xs font-medium">
+                ${patient.disease}
+              </span>
+            </td>
+            <td class="px-4 py-3">
+              <span class="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-medium">
+                ${department}
+              </span>
+            </td>
+            <td class="px-4 py-3 text-gray-700">${formatDate(admissionDate)}</td>
+            <td class="px-4 py-3">
+              <span class="inline-block px-2 py-1 rounded-full text-xs font-medium ${statusInfo.colorClass}">
+                ${statusInfo.status}
+              </span>
+            </td>
+          </tr>
+        `;
+      });
+
+      patientHistoryTable.innerHTML = tableHTML;
+    }
+
+    // Initialize page
+    function initializePage() {
+      // Set hospital name
+      const hospitalName = localStorage.getItem("hospitalName") || "Unknown Hospital";
+      document.getElementById("hospitalNameNav").textContent = hospitalName;
+      
+      // Load patient history
+      loadPatientHistory();
+    }
+
+    // Logout function
+    function logout() {
+      if (confirm("Are you sure you want to logout?")) {
+        localStorage.clear();
+        window.location.href = "login.html";
+      }
+    }
+
+    // Initialize when page loads
+    document.addEventListener("DOMContentLoaded", initializePage);
+  </script>
+</body>
+</html>

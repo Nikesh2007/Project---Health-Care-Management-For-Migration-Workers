@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Patient Search</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+</head>
+<body class="bg-gray-100">
+  <!-- Main Container -->
+  <div class="min-h-screen flex flex-col">
+    <!-- Top Navigation Bar (same as dashboard) -->
+    <div class="bg-blue-600 text-white flex items-center justify-between px-6 py-3 shadow-md">
+      <!-- Left: Logo + Title -->
+      <div class="flex items-center space-x-3">
+        <img src="https://upload.wikimedia.org/wikipedia/en/thumb/4/4b/SRM_University_Logo.svg/1200px-SRM_University_Logo.svg.png"
+             class="h-8" alt="Logo" />
+        <span class="font-bold text-lg">Hospital Dashboard</span>
+      </div>
+      <!-- Center: Navigation Links -->
+      <div class="flex items-center space-x-6">
+        <a href="Dashboard.html" class="hover:underline">🏠 Home</a>
+        <a href="Dashboard.html" onclick="showAddPatient()" class="hover:underline">➕ Add Patient</a>
+        <a href="#" class="hover:underline">📜 History</a>
+        <a href="search.html" class="hover:underline font-bold">🔍 Search</a>
+      </div>
+      <!-- Right: Hospital Name + Logout -->
+      <div class="flex items-center space-x-3">
+        <span class="font-semibold" id="hospitalNameNav"></span>
+        <button onclick="logout()"
+                class="bg-white text-blue-600 px-3 py-1 rounded hover:bg-gray-200">
+          Logout
+        </button>
+      </div>
+    </div>
+
+    <!-- Workspace -->
+    <div class="flex-1 p-8">
+      <div class="max-w-xl mx-auto bg-white shadow-lg rounded-lg p-6">
+        <h2 class="text-2xl font-bold text-center mb-6 text-blue-600">🔍 Search Patient by Aadhaar</h2>
+
+        <form id="searchForm" class="space-y-4">
+          <input type="text" id="searchAadhar" placeholder="🆔 Enter Aadhaar Number"
+                 class="w-full px-4 py-3 border rounded-lg" required />
+          <button type="submit"
+                  class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+            Search
+          </button>
+        </form>
+
+        <!-- Result Section -->
+        <div id="result" class="mt-6 hidden p-4 border rounded-lg"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Your Firebase configuration (replace with your actual config from Firebase Console!)
+    const firebaseConfig = {
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      projectId: "healthbuddie-patient",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_MSG_SENDER_ID",
+      appId: "YOUR_APP_ID"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
+    // Set hospital name from localStorage
+    const hospitalName = localStorage.getItem("hospitalName") || "Unknown Hospital";
+    document.getElementById("hospitalNameNav").textContent = hospitalName;
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = "login.html";
+    }
+
+    const searchForm = document.getElementById("searchForm");
+    const resultDiv = document.getElementById("result");
+
+    searchForm.addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const aadhar = document.getElementById("searchAadhar").value.trim();
+
+      try {
+        // Query Firestore for patient with matching aadhar
+        const querySnapshot = await db.collection("patientReports")
+                                    .where("aadhar", "==", aadhar)
+                                    .get();
+
+        if (!querySnapshot.empty) {
+          const patientData = querySnapshot.docs[0].data();
+
+          // Extract from reports array
+          const report = (patientData.reports && patientData.reports.length > 0) ? patientData.reports[0] : {};
+
+          const name = report.name || "Not Available";
+          const age = report.age || "Not Available";
+          // Use lifethreateningDisease or department for disease info
+          const disease = report.lifethreateningDisease || report.department || "Not Available";
+          const aadharNumber = patientData.aadhar || "Not Available";
+
+          resultDiv.innerHTML = `
+            <h3 class="text-xl font-bold text-green-600 mb-2">✅ Patient Found</h3>
+            <p><strong>Name:</strong> ${name}</p>
+            <p><strong>Age:</strong> ${age}</p>
+            <p><strong>Disease:</strong> ${disease}</p>
+            <p><strong>Aadhaar:</strong> ${aadharNumber}</p>
+          `;
+          resultDiv.classList.remove("hidden", "bg-red-50", "border-red-400");
+          resultDiv.classList.add("bg-green-50", "border-green-400");
+        } else {
+          resultDiv.innerHTML = `
+            <h3 class="text-xl font-bold text-red-600 mb-2">⚠ Patient Not Found</h3>
+            <p>No records available for Aadhaar <strong>${aadhar}</strong>.</p>
+          `;
+          resultDiv.classList.remove("hidden", "bg-green-50", "border-green-400");
+          resultDiv.classList.add("bg-red-50", "border-red-400");
+        }
+      } catch (error) {
+        console.error("Error searching patient:", error);
+        resultDiv.innerHTML = `<p class="text-red-600">Error fetching data. Try again later.</p>`;
+        resultDiv.classList.remove("hidden");
+        resultDiv.classList.remove("bg-green-50", "border-green-400", "bg-red-50", "border-red-400");
+      }
+    });
+  </script>
+</body>
+</html>

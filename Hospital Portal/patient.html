@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Patient Registration</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="min-h-screen bg-gradient-to-r from-blue-100 to-indigo-200 flex flex-col items-center justify-start">
+  <!-- ======= Top Navigation Bar ======= -->
+  <div class="bg-blue-600 text-white flex items-center justify-between px-6 py-3 shadow-md w-full">
+    <!-- Left: Logo + Title -->
+    <div class="flex items-center space-x-3">
+      <img src="https://upload.wikimedia.org/wikipedia/en/thumb/4/4b/SRM_University_Logo.svg/1200px-SRM_University_Logo.svg.png" 
+           class="h-8" alt="Logo">
+      <span class="font-bold text-lg">Hospital Dashboard</span>
+    </div>
+    <!-- Center: Navigation Links -->
+    <div class="flex items-center space-x-6">
+      <a href="dashboard.html" class="hover:underline">🏠 Home</a>
+      <a href="patient.html" class="hover:underline">➕ Add Patient</a>
+      <a href="history.html" class="hover:underline">📜 History</a>
+      <a href="search.html" class="hover:underline">🔍 Search</a>
+    </div>
+    <!-- Right: User + Logout -->
+    <div class="flex items-center space-x-3">
+      <span class="font-semibold">Welcome, Admin</span>
+      <a href="login.html">
+        <button class="bg-white text-blue-600 px-3 py-1 rounded hover:bg-gray-200">Logout</button>
+      </a>
+    </div>
+  </div>
+  <!-- ======== Aadhar Input Page ======== -->
+  <div id="aadharPage" class="bg-white shadow-2xl rounded-3xl p-12 w-full max-w-lg flex flex-col items-center mt-8">
+    <div class="text-center mb-8">
+      <div class="text-8xl text-blue-600 mb-4">👤</div>
+      <h1 class="text-4xl font-bold text-blue-700">Enter Patient Aadhar</h1>
+      <p class="text-gray-500 mt-2">Provide 12-digit Aadhar number</p>
+    </div>
+    <form id="aadharForm" class="w-full flex flex-col items-center gap-6">
+      <input type="text" id="aadharInput" maxlength="12" placeholder="🆔 Aadhar Number"
+             class="w-full px-6 py-4 border-2 border-blue-300 rounded-xl text-xl focus:outline-none focus:ring-4 focus:ring-blue-300"
+             required pattern="\d{12}" />
+      <button type="submit" 
+              class="w-full bg-blue-600 text-white py-4 rounded-xl font-semibold hover:bg-blue-700 transition transform hover:scale-[1.02] text-xl">
+        ✅ Next
+      </button>
+    </form>
+    <p id="aadharFeedback" class="mt-6 text-red-500 font-medium"></p>
+  </div>
+  <!-- ======== Patient Details Form Page ======== -->
+  <div id="formPage" class="hidden bg-white shadow-2xl rounded-3xl p-12 w-full max-w-3xl mt-8">
+    <div class="text-center mb-8">
+      <div class="text-8xl text-blue-600 mb-4">📋</div>
+      <h1 class="text-4xl font-bold text-blue-700">Patient Details Form</h1>
+      <p class="text-gray-500 mt-2">Fill in the details carefully</p>
+    </div>
+    <form id="detailsForm" class="grid grid-cols-2 gap-6">
+      <!-- Name -->
+      <div class="col-span-2">
+        <label class="block text-lg font-medium mb-2">Name (as per Aadhar)</label>
+        <input type="text" id="name" required
+               class="w-full px-4 py-3 border-2 border-blue-300 rounded-lg focus:ring-4 focus:ring-blue-200">
+      </div>
+      <!-- DOB -->
+      <div>
+        <label class="block text-lg font-medium mb-2">Date of Birth</label>
+        <input type="date" id="dob" max="" required
+               class="w-full px-4 py-3 border-2 border-blue-300 rounded-lg focus:ring-4 focus:ring-blue-200"
+               onchange="calculateAge()">
+      </div>
+      <!-- Age -->
+      <div>
+        <label class="block text-lg font-medium mb-2">Age</label>
+        <input type="text" id="age" readonly
+               class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-100">
+      </div>
+      <!-- Aadhar Number -->
+      <div class="col-span-2">
+        <label class="block text-lg font-medium mb-2">Aadhar Number</label>
+        <input type="text" id="aadharDisplay" readonly
+               class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-100">
+      </div>
+      <!-- State -->
+<div>
+  <label class="block text-lg font-medium mb-2">State</label>
+  <select id="state" required
+          class="w-full px-4 py-3 border-2 border-blue-300 rounded-lg focus:ring-4 focus:ring-blue-200">
+    <option value="">Select State</option>
+    <option value="NRI">NRI</option>
+    <option value="Andhra Pradesh">Andhra Pradesh</option>
+    <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+    <option value="Assam">Assam</option>
+    <option value="Bihar">Bihar</option>
+    <option value="Chhattisgarh">Chhattisgarh</option>
+    <option value="Goa">Goa</option>
+    <option value="Gujarat">Gujarat</option>
+    <option value="Haryana">Haryana</option>
+    <option value="Himachal Pradesh">Himachal Pradesh</option>
+    <option value="Jharkhand">Jharkhand</option>
+    <option value="Karnataka">Karnataka</option>
+    <option value="Kerala">Kerala</option>
+    <option value="Madhya Pradesh">Madhya Pradesh</option>
+    <option value="Maharashtra">Maharashtra</option>
+    <option value="Manipur">Manipur</option>
+    <option value="Meghalaya">Meghalaya</option>
+    <option value="Mizoram">Mizoram</option>
+    <option value="Nagaland">Nagaland</option>
+    <option value="Odisha">Odisha</option>
+    <option value="Punjab">Punjab</option>
+    <option value="Rajasthan">Rajasthan</option>
+    <option value="Sikkim">Sikkim</option>
+    <option value="Tamil Nadu">Tamil Nadu</option>
+    <option value="Telangana">Telangana</option>
+    <option value="Tripura">Tripura</option>
+    <option value="Uttar Pradesh">Uttar Pradesh</option>
+    <option value="Uttarakhand">Uttarakhand</option>
+    <option value="West Bengal">West Bengal</option>
+    <!-- Union Territories -->
+    <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
+    <option value="Chandigarh">Chandigarh</option>
+    <option value="Dadra and Nagar Haveli and Daman and Diu">Dadra and Nagar Haveli and Daman and Diu</option>
+    <option value="Delhi">Delhi</option>
+    <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+    <option value="Ladakh">Ladakh</option>
+    <option value="Lakshadweep">Lakshadweep</option>
+    <option value="Puducherry">Puducherry</option>
+  </select>
+</div>
+      <!-- Sex -->
+      <div>
+        <label class="block text-lg font-medium mb-2">Sex</label>
+        <select id="sex" required
+                class="w-full px-4 py-3 border-2 border-blue-300 rounded-lg focus:ring-4 focus:ring-blue-200">
+          <option value="">Select</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <!-- Blood Group -->
+      <div>
+        <label class="block text-lg font-medium mb-2">Blood Group</label>
+        <select id="blood" required
+                class="w-full px-4 py-3 border-2 border-blue-300 rounded-lg focus:ring-4 focus:ring-blue-200">
+          <option value="">Select</option>
+          <option>A+</option>
+          <option>A-</option>
+          <option>B+</option>
+          <option>B-</option>
+          <option>O+</option>
+          <option>O-</option>
+          <option>AB+</option>
+          <option>AB-</option>
+        </select>
+      </div>
+      <!-- Occupation -->
+      <div>
+        <label class="block text-lg font-medium mb-2">Occupation</label>
+        <select id="occupation" required
+                class="w-full px-4 py-3 border-2 border-blue-300 rounded-lg focus:ring-4 focus:ring-blue-200">
+          <option value="">Select Occupation</option>
+          <option>Government Worker</option>
+          <option>Private Worker</option>
+          <option>Business</option>
+        </select>
+      </div>
+      <!-- Pincode -->
+      <div>
+        <label class="block text-lg font-medium mb-2">Pincode</label>
+        <input type="text" id="pincode" maxlength="6" required
+               class="w-full px-4 py-3 border-2 border-blue-300 rounded-lg focus:ring-4 focus:ring-blue-200">
+      </div>
+      <!-- Mobile No -->
+      <div>
+        <label class="block text-lg font-medium mb-2">Mobile Number</label>
+        <input type="tel" id="mobile" maxlength="10" required
+               class="w-full px-4 py-3 border-2 border-blue-300 rounded-lg focus:ring-4 focus:ring-blue-200">
+      </div>
+      <!-- Alt Mobile -->
+      <div>
+        <label class="block text-lg font-medium mb-2">Alternative Mobile (optional)</label>
+        <input type="tel" id="altMobile" maxlength="10"
+               class="w-full px-4 py-3 border-2 border-blue-300 rounded-lg focus:ring-4 focus:ring-blue-200">
+      </div>
+      <!-- Email -->
+      <div class="col-span-2">
+        <label class="block text-lg font-medium mb-2">Email (optional)</label>
+        <input type="email" id="email"
+               class="w-full px-4 py-3 border-2 border-blue-300 rounded-lg focus:ring-4 focus:ring-blue-200">
+      </div>
+      <!-- Buttons -->
+      <div class="col-span-2 flex justify-between mt-6">
+        <button type="button" onclick="goBack()"
+                class="px-6 py-3 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400 transition text-lg font-medium">
+          ⬅ Back
+        </button>
+        <button type="submit"
+                class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-lg font-medium">
+          Submit Details
+        </button>
+      </div>
+    </form>
+  </div>
+  <!-- ====== Aadhar Exists Popup ====== -->
+  <div id="existsPopup" class="hidden fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
+    <div class="bg-white rounded-2xl shadow-xl p-8 text-center w-96 relative">
+      <button onclick="closePopup()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 text-xl">✖</button>
+      <div class="flex justify-center mb-4">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-yellow-500" fill="none" 
+             viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
+                d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+      </div>
+      <h2 class="text-2xl font-bold text-red-600 mb-2">The Aadhar registered already!</h2>
+      <p class="text-gray-600 mb-6">This Aadhar is already in our database.</p>
+      <button onclick="addReport()" 
+              class="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+        ➕ Add Report
+      </button>
+    </div>
+  </div>
+  <!-- Firebase Backend -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+    const firebaseConfig = {
+      apiKey: "AIzaSyA-8Lmpqdo7D9tSgROx6MFVxnu-ClcyCec",
+      authDomain: "healthbuddie-patient.firebaseapp.com",
+      projectId: "healthbuddie-patient",
+      storageBucket: "healthbuddie-patient.firebasestorage.app",
+      messagingSenderId: "684488461470",
+      appId: "1:684488461470:web:a852a2f324e7075ed2bf8f"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    document.getElementById("dob").max = new Date().toISOString().split("T")[0];
+    function calculateAge() {
+      const dob = document.getElementById("dob").value;
+      if (!dob) return;
+      const birthDate = new Date(dob);
+      const today = new Date();
+      let years = today.getFullYear() - birthDate.getFullYear();
+      let months = today.getMonth() - birthDate.getMonth();
+      let days = today.getDate() - birthDate.getDate();
+      if (days < 0) { months--; days += new Date(today.getFullYear(), today.getMonth(), 0).getDate(); }
+      if (months < 0) { years--; months += 12; }
+      document.getElementById("age").value = `${years} years, ${months} months, ${days} days`;
+    }
+    window.calculateAge = calculateAge;
+    document.getElementById("aadharForm").addEventListener("submit", async function(e) {
+      e.preventDefault();
+      const aadhar = document.getElementById("aadharInput").value.trim();
+      if(!/^\d{12}$/.test(aadhar)) {
+        document.getElementById("aadharFeedback").textContent = "❌ Invalid Aadhar! Must be 12 digits.";
+        return;
+      }
+      const docRef = doc(db, "patients", aadhar);
+      const docSnap = await getDoc(docRef);
+      if (docSnap.exists()) {
+        document.getElementById("existsPopup").classList.remove("hidden");
+      } else {
+        document.getElementById("aadharPage").classList.add("hidden");
+        document.getElementById("formPage").classList.remove("hidden");
+        document.getElementById("aadharDisplay").value = aadhar;
+      }
+    });
+    window.closePopup = function() { document.getElementById("existsPopup").classList.add("hidden"); }
+    window.addReport = function() { window.location.href = "add.html"; }
+    window.goBack = function() {
+      document.getElementById("formPage").classList.add("hidden");
+      document.getElementById("aadharPage").classList.remove("hidden");
+    }
+    document.getElementById("detailsForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const aadhar = document.getElementById("aadharDisplay").value;
+      const patientData = {
+        name: document.getElementById("name").value,
+        dob: document.getElementById("dob").value,
+        age: document.getElementById("age").value,
+        state: document.getElementById("state").value,
+        sex: document.getElementById("sex").value,
+        blood: document.getElementById("blood").value,
+        occupation: document.getElementById("occupation").value,
+        pincode: document.getElementById("pincode").value,
+        mobile: document.getElementById("mobile").value,
+        altMobile: document.getElementById("altMobile").value,
+        email: document.getElementById("email").value,
+        createdAt: serverTimestamp()
+      };
+      try {
+        await setDoc(doc(db, "patients", aadhar), patientData);
+        alert("✅ Patient details saved successfully!");
+        document.getElementById("detailsForm").reset();
+      } catch (error) {
+        console.error("Error saving document: ", error);
+        alert("❌ Failed to save patient details!");
+      }
+    });
+  </script>
+</body>
+</html>

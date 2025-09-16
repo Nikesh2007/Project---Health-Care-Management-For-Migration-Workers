@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Add Patient Report</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .btnToggle {
+      background-color: #22c55e;
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .btnToggle.activeBtn {
+      background-color: #dc2626;
+      transform: scale(1.05);
+    }
+    .upload-animation {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #3498db;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-r from-blue-100 to-indigo-200 flex items-center justify-center">
+  <div class="bg-white shadow-2xl rounded-3xl p-12 w-full max-w-4xl">
+    <h1 class="text-4xl font-bold text-blue-700 text-center mb-8">📄 Add Patient Report</h1>
+    <form id="reportForm" class="grid grid-cols-2 gap-6" onsubmit="return validateForm(event)">
+      <!-- Aadhar -->
+      <div class="col-span-2">
+        <label class="block text-lg font-medium mb-2">Aadhar Number <span class="text-red-500">*</span></label>
+        <input type="text" id="aadhar" required class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-white" />
+      </div>
+      <!-- Name -->
+      <div class="col-span-2">
+        <label class="block text-lg font-medium mb-2">Name <span class="text-red-500">*</span></label>
+        <input type="text" id="name" readonly required class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-100" />
+      </div>
+      <!-- Age -->
+      <div>
+        <label class="block text-lg font-medium mb-2">Age <span class="text-red-500">*</span></label>
+        <input type="text" id="age" readonly required class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-100" />
+      </div>
+      <!-- Blood Group -->
+      <div>
+        <label class="block text-lg font-medium mb-2">Blood Group <span class="text-red-500">*</span></label>
+        <input type="text" id="blood" readonly required class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg bg-gray-100" />
+      </div>
+      <!-- Doctor Name -->
+      <div class="col-span-2">
+        <label class="block text-lg font-medium mb-2">Doctor Name <span class="text-red-500">*</span></label>
+        <input type="text" id="doctor" required class="w-full px-4 py-3 border-2 border-blue-300 rounded-lg focus:ring-4 focus:ring-blue-200" />
+      </div>
+      <!-- Department -->
+      <div class="col-span-2">
+        <label class="block text-lg font-medium mb-2">Department <span class="text-red-500">*</span></label>
+        <select id="department" required class="w-full px-4 py-3 border-2 border-blue-300 rounded-lg focus:ring-4 focus:ring-blue-200">
+          <option value="">Select Department</option>
+          <option>Cardiology</option>
+          <option>Neurology</option>
+          <option>Orthopedics</option>
+          <option>Pediatrics</option>
+          <option>Gynecology</option>
+          <option>Dermatology</option>
+          <option>ENT</option>
+          <option>Urology</option>
+          <option>General Surgery</option>
+          <option>Oncology</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <!-- Hospital ID -->
+      <div class="col-span-2 relative">
+        <label class="block text-lg font-medium mb-2">Hospital ID <span class="text-red-500">*</span></label>
+        <div class="flex items-center space-x-2">
+          <input type="text" id="hospitalId" required class="w-full px-4 py-3 border-2 border-blue-300 rounded-lg focus:ring-4 focus:ring-blue-200" oninput="showVerifyButton()" />
+          <button type="button" id="verifyBtn" class="bg-green-500 text-white px-4 py-2 rounded-lg hidden" onclick="verifyHospital()">Verify</button>
+        </div>
+        <span id="verifyMessage" class="ml-2 text-sm font-medium text-gray-600"></span>
+        <div id="hospitalLoading" class="absolute right-3 top-12 hidden text-gray-500">⏳ Checking...</div>
+      </div>
+      <!-- X-Ray -->
+      <div class="col-span-2">
+        <label class="block text-lg font-medium mb-2">X-Ray File (PDF, optional)</label>
+        <input type="file" id="xrayFile" accept=".pdf" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg" />
+      </div>
+      <!-- Blood Test -->
+      <div class="col-span-2">
+        <label class="block text-lg font-medium mb-2">Blood Test Report (PDF, optional)</label>
+        <input type="file" id="bloodTestFile" accept=".pdf" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg" />
+      </div>
+      <!-- Surgeries -->
+      <div class="col-span-2">
+        <label class="block text-lg font-medium mb-2">Any Operations/Surgeries? <span class="text-red-500">*</span></label>
+        <div class="flex space-x-4 mb-2">
+          <button type="button" class="btnToggle" onclick="toggleTextarea('surgeries', true, this)">Yes</button>
+          <button type="button" class="btnToggle" onclick="toggleTextarea('surgeries', false, this)">No</button>
+        </div>
+        <textarea id="surgeries" placeholder="Provide details if yes" class="hidden w-full px-4 py-3 border-2 border-gray-300 rounded-lg"></textarea>
+        <input type="hidden" id="surgeriesRequired" required />
+      </div>
+      <!-- Allergies -->
+      <div class="col-span-2">
+        <label class="block text-lg font-medium mb-2">Any Spreadable Allergies? <span class="text-red-500">*</span></label>
+        <div class="flex space-x-4 mb-2">
+          <button type="button" class="btnToggle" onclick="toggleTextarea('allergies', true, this)">Yes</button>
+          <button type="button" class="btnToggle" onclick="toggleTextarea('allergies', false, this)">No</button>
+        </div>
+        <textarea id="allergies" placeholder="Provide details if yes" class="hidden w-full px-4 py-3 border-2 border-gray-300 rounded-lg"></textarea>
+        <input type="hidden" id="allergiesRequired" required />
+      </div>
+      <!-- Life-threatening Diseases -->
+      <div class="col-span-2">
+        <label class="block text-lg font-medium mb-2">Any Life-threatening Disease? <span class="text-red-500">*</span></label>
+        <div class="flex space-x-4 mb-2">
+          <button type="button" class="btnToggle" onclick="toggleTextarea('lifethreateningDisease', true, this)">Yes</button>
+          <button type="button" class="btnToggle" onclick="toggleTextarea('lifethreateningDisease', false, this)">No</button>
+        </div>
+        <textarea id="lifethreateningDisease" placeholder="Provide details if yes" class="hidden w-full px-4 py-3 border-2 border-gray-300 rounded-lg"></textarea>
+        <input type="hidden" id="lifethreateningDiseaseRequired" required />
+      </div>
+      <!-- Insurance -->
+      <div class="col-span-2">
+        <label class="block text-lg font-medium mb-2">Insurance Details <span class="text-red-500">*</span></label>
+        <div class="flex space-x-4 mb-2">
+          <button type="button" class="btnToggle" onclick="toggleFile('insuranceUsedDoc', true, this)">Issued</button>
+          <button type="button" class="btnToggle" onclick="toggleFile('insuranceUsedDoc', false, this)">No</button>
+        </div>
+        <div id="insuranceUsedDoc" class="hidden mt-2">
+          <span class="text-red-600 font-bold">Attach Insurance Document</span>
+          <label class="ml-2 cursor-pointer text-green-600 text-xl font-bold">➕
+            <input type="file" id="insuranceFile" accept=".pdf" class="hidden" />
+          </label>
+        </div>
+        <input type="hidden" id="insuranceRequired" required />
+      </div>
+      <!-- Hospitalized -->
+      <div class="col-span-2">
+        <label class="block text-lg font-medium mb-2">Is the patient hospitalized? <span class="text-red-500">*</span></label>
+        <div class="flex space-x-4 mb-2">
+          <button type="button" class="btnToggle" onclick="toggleHospitalized(true, this)">Yes</button>
+          <button type="button" class="btnToggle" onclick="toggleHospitalized(false, this)">No</button>
+        </div>
+        <div id="hospitalizedDates" class="hidden grid grid-cols-2 gap-4">
+          <div>
+            <label class="block text-sm font-medium mb-1">From Date <span class="text-red-500">*</span></label>
+            <input type="date" id="fromDate" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium mb-1">End Date <span class="text-red-500">*</span></label>
+            <input type="date" id="endDate" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg" />
+          </div>
+        </div>
+        <input type="hidden" id="hospitalizedRequired" required />
+      </div>
+      <!-- Medicine Details -->
+      <div class="col-span-2">
+        <label class="block text-lg font-medium mb-2">Medicine Details <span class="text-red-500">*</span></label>
+        <textarea id="medicineDetails" required placeholder="Provide medicine details" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg"></textarea>
+      </div>
+      <!-- Any Other Documents -->
+      <div class="col-span-2">
+        <label class="block text-lg font-medium mb-2">Any Other Documents to Attach?</label>
+        <input type="file" id="otherDocsFile" accept=".pdf" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg" />
+      </div>
+      <!-- Covid -->
+      <div class="col-span-2">
+        <label class="block text-lg font-medium mb-2">Covid Vaccine Certificate</label>
+        <input type="file" id="covidCertFile" accept=".pdf" class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg" />
+      </div>
+      <!-- Submit -->
+      <div class="col-span-2 text-center mt-4">
+        <button type="submit" id="submitBtn" class="bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700">
+          ➕ Save Report
+        </button>
+        <div id="uploadProgress" class="hidden mt-4 text-center">
+          <div class="upload-animation mr-2"></div>
+          <span id="uploadText">Uploading files and saving report...</span>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getFirestore,
+      doc,
+      getDoc,
+      collection,
+      getDocs,
+      setDoc,
+      updateDoc,
+      arrayUnion,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+    // Patient Firebase config (you provided this)
+    const firebaseConfigPatient = {
+      apiKey: "AIzaSyA-8Lmpqdo7D9tSgROx6MFVxnu-ClcyCec",
+      authDomain: "healthbuddie-patient.firebaseapp.com",
+      projectId: "healthbuddie-patient",
+      storageBucket: "healthbuddie-patient.firebasestorage.app",
+      messagingSenderId: "684488461470",
+      appId: "1:684488461470:web:a852a2f324e7075ed2bf8f"
+    };
+
+    const appPatient = initializeApp(firebaseConfigPatient, "patientApp");
+    const dbPatient = getFirestore(appPatient);
+    const storagePatient = getStorage(appPatient);
+
+    // Hospital Firebase (unchanged)
+    const firebaseConfigHospital = {
+      apiKey: "AIzaSyADkeizR7KUWwPUdSAQ_hq3-ZCbLrZzbHY",
+      authDomain: "healthbuddie-9665e.firebaseapp.com",
+      projectId: "healthbuddie-9665e",
+      storageBucket: "healthbuddie-9665e.firebasestorage.app",
+      messagingSenderId: "1060838744826",
+      appId: "1:1060838744826:web:03f3918fa3498e730b9f43"
+    };
+    const appHospital = initializeApp(firebaseConfigHospital, "hospitalApp");
+    const dbHospital = getFirestore(appHospital);
+
+    // Patient lookup by aadhar (unchanged)
+    document.getElementById("aadhar").addEventListener("blur", async () => {
+      const aadhar = document.getElementById("aadhar").value.trim();
+      if (!aadhar) return;
+      try {
+        const docSnap = await getDoc(doc(dbPatient, "patients", aadhar));
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          document.getElementById("name").value = data.name || "";
+          document.getElementById("age").value = data.age || "";
+          document.getElementById("blood").value = data.blood || "";
+        } else {
+          document.getElementById("name").value = "";
+          document.getElementById("age").value = "";
+          document.getElementById("blood").value = "";
+          alert("❌ No patient found with this Aadhar number!");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("❌ Error fetching patient data: " + err.message);
+      }
+    });
+
+    // Hospital verify UI (unchanged)
+    const hospitalIdInput = document.getElementById("hospitalId");
+    let verifyPopup = null;
+
+    hospitalIdInput.addEventListener("input", function () {
+      removeVerifyPopup();
+      if (hospitalIdInput.value.trim()) {
+        showVerifyPopup();
+      }
+    });
+
+    function showVerifyPopup() {
+      if (verifyPopup) return;
+      verifyPopup = document.createElement("span");
+      verifyPopup.textContent = "🔍 Verify Hospital ID";
+      verifyPopup.style = "cursor:pointer;color:#2563eb;font-weight:600;margin-left:8px;";
+      verifyPopup.id = "hospitalVerifyPopup";
+      hospitalIdInput.parentElement.appendChild(verifyPopup);
+      verifyPopup.addEventListener("click", doLiveHospitalVerify);
+    }
+
+    function removeVerifyPopup() {
+      const existing = document.getElementById("hospitalVerifyPopup");
+      if (existing) {
+        existing.remove();
+        verifyPopup = null;
+      }
+    }
+
+    async function doLiveHospitalVerify() {
+      const hospitalId = hospitalIdInput.value.trim();
+      const msg = document.getElementById("verifyMessage");
+      const loading = document.getElementById("hospitalLoading");
+      removeVerifyPopup();
+      if (!hospitalId) return;
+      loading.classList.remove("hidden");
+      msg.textContent = "";
+      try {
+        const hospitalsRef = collection(dbHospital, "hospitals");
+        const snapshot = await getDocs(hospitalsRef);
+        let found = false;
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          if (Object.keys(data).includes(hospitalId)) {
+            msg.innerHTML = `✅ <span style='color:#16a34a;font-weight:600;'>Hospital Verified: ${docSnap.id} (matched field: ${hospitalId})</span>`;
+            msg.classList.remove("text-red-600");
+            msg.classList.add("text-green-600");
+            found = true;
+          }
+        });
+        if (!found) {
+          msg.innerHTML = "❌ <span style='color:#dc2626;font-weight:600;'>Invalid Hospital ID!</span>";
+          msg.classList.remove("text-green-600");
+          msg.classList.add("text-red-600");
+        }
+      } catch (err) {
+        msg.innerHTML = `❌ <span style='color:#dc2626;font-weight:600;'>Error: ${err.message}</span>`;
+        msg.classList.remove("text-green-600");
+        msg.classList.add("text-red-600");
+      } finally {
+        loading.classList.add("hidden");
+      }
+    }
+
+    function showVerifyButton() {
+      const input = document.getElementById("hospitalId");
+      const btn = document.getElementById("verifyBtn");
+      const msg = document.getElementById("verifyMessage");
+      if (input.value.trim() !== "") {
+        btn.classList.remove("hidden");
+        msg.textContent = "";
+      } else {
+        btn.classList.add("hidden");
+        msg.textContent = "";
+      }
+    }
+
+    async function verifyHospital() {
+      const hospitalId = document.getElementById("hospitalId").value.trim();
+      const msg = document.getElementById("verifyMessage");
+      const loading = document.getElementById("hospitalLoading");
+      if (!hospitalId) return;
+      loading.classList.remove("hidden");
+      msg.textContent = "";
+      try {
+        const hospitalsRef = collection(dbHospital, "hospitals");
+        const snapshot = await getDocs(hospitalsRef);
+        let found = false;
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          if (Object.keys(data).includes(hospitalId)) {
+            msg.textContent = `✅ Hospital Verified: ${docSnap.id} (matched field: ${hospitalId})`;
+            msg.classList.remove("text-red-600");
+            msg.classList.add("text-green-600");
+            found = true;
+          }
+        });
+        if (!found) {
+          msg.textContent = "❌ Invalid Hospital ID!";
+          msg.classList.remove("text-green-600");
+          msg.classList.add("text-red-600");
+        }
+      } catch (err) {
+        msg.textContent = "❌ Error: " + err.message;
+        msg.classList.remove("text-green-600");
+        msg.classList.add("text-red-600");
+      } finally {
+        loading.classList.add("hidden");
+      }
+    }
+
+    // helper: upload file and return download URL
+    async function uploadFile(file, path) {
+      if (!file) return null;
+      try {
+        const storageRef = ref(storagePatient, path);
+        const snapshot = await uploadBytes(storageRef, file);
+        const url = await getDownloadURL(snapshot.ref);
+        return url;
+      } catch (err) {
+        console.error("Upload error:", err);
+        throw err;
+      }
+    }
+
+    // --------- SAVE REPORT (edited backend logic only) ----------
+    async function saveReportBackend(aadhar, reportEntry) {
+      // aadhar: string, reportEntry: object
+      const docRef = doc(dbPatient, "patientReports", aadhar);
+      try {
+        const existing = await getDoc(docRef);
+        if (existing.exists()) {
+          // append report to reports array
+          await updateDoc(docRef, {
+            reports: arrayUnion(reportEntry),
+            lastUpdated: serverTimestamp()
+          });
+        } else {
+          // create document with reports array
+          await setDoc(docRef, {
+            reports: [reportEntry],
+            createdAt: serverTimestamp()
+          });
+        }
+      } catch (err) {
+        throw err;
+      }
+    }
+
+    // Save report triggered by form submit (only this part changed from your original)
+    window.saveReport = async function (event) {
+      // event provided by validateForm
+      event.preventDefault();
+
+      const submitBtn = document.getElementById("submitBtn");
+      const uploadProgress = document.getElementById("uploadProgress");
+      const uploadText = document.getElementById("uploadText");
+
+      // show progress UI
+      submitBtn.disabled = true;
+      uploadProgress.classList.remove("hidden");
+      uploadText.textContent = "Preparing report data...";
+
+      try {
+        // Verify hospital message contains success
+        const verifyMsg = document.getElementById("verifyMessage").textContent || "";
+        if (!verifyMsg.includes("Hospital Verified")) {
+          alert("❌ Please verify a valid Hospital ID before submitting.");
+          uploadProgress.classList.add("hidden");
+          submitBtn.disabled = false;
+          return;
+        }
+
+        const aadhar = document.getElementById("aadhar").value.trim();
+        if (!aadhar) {
+          alert("❌ Aadhar is required.");
+          uploadProgress.classList.add("hidden");
+          submitBtn.disabled = false;
+          return;
+        }
+
+        const timestamp = new Date();
+        const isoTimestamp = timestamp.toISOString();
+        const humanTime = timestamp.toLocaleString();
+
+        // Build base report entry
+        const reportEntry = {
+          timestampISO: isoTimestamp,
+          timestampHuman: humanTime,
+          doctorName: document.getElementById("doctor").value.trim(),
+          department: document.getElementById("department").value,
+          hospitalId: document.getElementById("hospitalId").value.trim(),
+          surgeries: document.getElementById("surgeries").value || "",
+          allergies: document.getElementById("allergies").value || "",
+          lifethreateningDisease: document.getElementById("lifethreateningDisease").value || "",
+          insuranceIssued: document.getElementById("insuranceRequired").value === "selected",
+          hospitalized: document.getElementById("hospitalizedRequired").value === "selected",
+          fromDate: document.getElementById("fromDate").value || null,
+          endDate: document.getElementById("endDate").value || null,
+          medicineDetails: document.getElementById("medicineDetails").value || "",
+          name: document.getElementById("name").value || "",
+          age: document.getElementById("age").value || "",
+          blood: document.getElementById("blood").value || ""
+        };
+
+        // Upload files (if any) with status messages
+        const xrayFile = document.getElementById("xrayFile").files[0];
+        if (xrayFile) {
+          uploadText.textContent = `Uploading X-Ray (${xrayFile.name})...`;
+          const path = `patientReports/${aadhar}/${isoTimestamp}_xray_${xrayFile.name}`;
+          reportEntry.xrayURL = await uploadFile(xrayFile, path);
+        }
+
+        const bloodTestFile = document.getElementById("bloodTestFile").files[0];
+        if (bloodTestFile) {
+          uploadText.textContent = `Uploading Blood Test (${bloodTestFile.name})...`;
+          const path = `patientReports/${aadhar}/${isoTimestamp}_blood_${bloodTestFile.name}`;
+          reportEntry.bloodTestURL = await uploadFile(bloodTestFile, path);
+        }
+
+        const insuranceFile = document.getElementById("insuranceFile") ? document.getElementById("insuranceFile").files[0] : null;
+        if (insuranceFile) {
+          uploadText.textContent = `Uploading Insurance (${insuranceFile.name})...`;
+          const path = `patientReports/${aadhar}/${isoTimestamp}_insurance_${insuranceFile.name}`;
+          reportEntry.insuranceURL = await uploadFile(insuranceFile, path);
+        }
+
+        const otherDocsFile = document.getElementById("otherDocsFile").files[0];
+        if (otherDocsFile) {
+          uploadText.textContent = `Uploading Other Document (${otherDocsFile.name})...`;
+          const path = `patientReports/${aadhar}/${isoTimestamp}_other_${otherDocsFile.name}`;
+          reportEntry.otherDocsURL = await uploadFile(otherDocsFile, path);
+        }
+
+        const covidCertFile = document.getElementById("covidCertFile").files[0];
+        if (covidCertFile) {
+          uploadText.textContent = `Uploading COVID Cert (${covidCertFile.name})...`;
+          const path = `patientReports/${aadhar}/${isoTimestamp}_covid_${covidCertFile.name}`;
+          reportEntry.covidCertURL = await uploadFile(covidCertFile, path);
+        }
+
+        uploadText.textContent = "Saving report metadata...";
+        // Save report entry to Firestore under patientReports/{aadhar} as an appended entry
+        await saveReportBackend(aadhar, reportEntry);
+
+        uploadProgress.classList.add("hidden");
+        alert("✅ Report saved successfully!");
+
+        // Reset the form but keep aadhar & patient fields? you said keep UI same — we reset full form as earlier behavior
+        document.getElementById("reportForm").reset();
+        document.getElementById("verifyMessage").textContent = "";
+      } catch (err) {
+        console.error("Save report error:", err);
+        alert("❌ Error saving report: " + (err.message || err));
+      } finally {
+        submitBtn.disabled = false;
+        document.getElementById("uploadProgress").classList.add("hidden");
+      }
+    };
+    // ------------------------------------------------------------
+
+  </script>
+
+  <script>
+    function setActive(btn) {
+      const parent = btn.parentNode;
+      parent.querySelectorAll("button").forEach((b) => b.classList.remove("activeBtn"));
+      btn.classList.add("activeBtn");
+    }
+    function toggleTextarea(id, show, btn) {
+      setActive(btn);
+      const textarea = document.getElementById(id);
+      const hiddenInput = document.getElementById(id + "Required");
+      hiddenInput.value = "selected";
+      if (show) {
+        textarea.classList.remove("hidden");
+        textarea.setAttribute("required", "true");
+      } else {
+        textarea.classList.add("hidden");
+        textarea.removeAttribute("required");
+        textarea.value = "";
+      }
+    }
+    function toggleFile(id, show, btn) {
+      setActive(btn);
+      const div = document.getElementById(id);
+      const hiddenInput = document.getElementById("insuranceRequired");
+      hiddenInput.value = "selected";
+      if (show) div.classList.remove("hidden");
+      else div.classList.add("hidden");
+    }
+    function toggleHospitalized(show, btn) {
+      setActive(btn);
+      const dateDiv = document.getElementById("hospitalizedDates");
+      const hiddenInput = document.getElementById("hospitalizedRequired");
+      hiddenInput.value = "selected";
+      if (show) {
+        dateDiv.classList.remove("hidden");
+        document.getElementById("fromDate").setAttribute("required", "true");
+        document.getElementById("endDate").setAttribute("required", "true");
+      } else {
+        dateDiv.classList.add("hidden");
+        document.getElementById("fromDate").removeAttribute("required");
+        document.getElementById("endDate").removeAttribute("required");
+        document.getElementById("fromDate").value = "";
+        document.getElementById("endDate").value = "";
+      }
+    }
+    document.addEventListener("DOMContentLoaded", () => {
+      const today = new Date().toISOString().split("T")[0];
+      document.getElementById("fromDate").setAttribute("max", today);
+      document.getElementById("endDate").setAttribute("max", today);
+    });
+
+    function validateForm(event) {
+      event.preventDefault();
+
+      // Ensure hospital verified (same rule you asked for earlier)
+      const verifyMsg = document.getElementById("verifyMessage").textContent || "";
+      if (!verifyMsg.includes("Hospital Verified") && !verifyMsg.includes("Hospital Verified:") && !verifyMsg.includes("✅")) {
+        alert("❌ Please verify a valid Hospital ID before submitting.");
+        return false;
+      }
+
+      // Mandatory yes/no hidden inputs
+      const hiddenInputs = document.querySelectorAll("input[type=hidden][required]");
+      for (let input of hiddenInputs) {
+        if (!input.value) {
+          alert("⚠️ Please answer all mandatory Yes/No questions.");
+          return false;
+        }
+      }
+
+      const fromDate = document.getElementById("fromDate").value;
+      const endDate = document.getElementById("endDate").value;
+      if (fromDate && endDate && endDate < fromDate) {
+        alert("⚠️ End Date cannot be earlier than From Date.");
+        return false;
+      }
+
+      // call actual save function (the backend we edited)
+      window.saveReport(event);
+      return false;
+    }
+  </script>
+</body>
+</html>

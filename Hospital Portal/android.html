@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Arogyam Login</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #f0f8ff;
+    }
+
+    .login-container {
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      background: #fff;
+      padding: 30px 20px;
+      border-radius: 15px;
+      box-shadow: 0px 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .logo {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #0b5394;
+      margin-bottom: 30px;
+    }
+
+    input {
+      width: 90%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+
+    button {
+      width: 95%;
+      padding: 12px;
+      background: #0b5394;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      margin-top: 15px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background: #083d73;
+    }
+
+    .details {
+      margin-top: 20px;
+      text-align: left;
+      font-size: 1rem;
+      color: #333;
+      word-wrap: break-word;
+    }
+  </style>
+</head>
+<body>
+
+<div class="login-container">
+  <div class="logo">Arogyam</div>
+
+  <input type="text" id="aadhaar" placeholder="Enter Aadhaar Number" maxlength="12">
+  <input type="date" id="dob" placeholder="Enter Date of Birth">
+
+  <button onclick="login()">Login</button>
+
+  <div class="details" id="details"></div>
+</div>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+
+<script>
+  // Firebase config
+  const firebaseConfig = {
+    apiKey: "AIzaSyA-8Lmpqdo7D9tSgROx6MFVxnu-ClcyCec",
+    authDomain: "healthbuddie-patient.firebaseapp.com",
+    projectId: "healthbuddie-patient",
+    storageBucket: "healthbuddie-patient.firebasestorage.app",
+    messagingSenderId: "684488461470",
+    appId: "1:684488461470:web:a852a2f324e7075ed2bf8f"
+  };
+
+  // Initialize Firebase
+  const app = firebase.initializeApp(firebaseConfig);
+  const db = firebase.firestore();
+
+  async function login() {
+    const aadhaar = document.getElementById('aadhaar').value.trim();
+    const dob = document.getElementById('dob').value.trim();
+    const detailsDiv = document.getElementById('details');
+
+    detailsDiv.innerHTML = '';
+
+    if(aadhaar.length !== 12 || isNaN(aadhaar)) {
+      alert("Please enter a valid 12-digit Aadhaar number");
+      return;
+    }
+
+    if(!dob) {
+      alert("Please select your date of birth");
+      return;
+    }
+
+    try {
+      const docRef = db.collection('patients').doc(aadhaar);
+      const docSnap = await docRef.get();
+
+      if(docSnap.exists()) {
+        const data = docSnap.data();
+        // Assuming DOB in database is stored as "YYYY-MM-DD"
+        if(data.dob === dob) {
+          let html = '<h3>Patient Details:</h3>';
+          for(const key in data) {
+            html += `<b>${key}:</b> ${data[key]}<br>`;
+          }
+          detailsDiv.innerHTML = html;
+        } else {
+          alert("Invalid credentials");
+        }
+      } else {
+        alert("Invalid credentials");
+      }
+
+    } catch (error) {
+      console.error("Error fetching patient data:", error);
+      alert("Error connecting to database");
+    }
+  }
+</script>
+
+</body>
+</html>

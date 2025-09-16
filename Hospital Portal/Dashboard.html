@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="pageTitle">Hospital Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100">
+  <!-- Dashboard -->
+  <div class="min-h-screen flex flex-col">
+    <!-- Top Navigation Bar -->
+    <div class="bg-blue-600 text-white flex items-center justify-between px-6 py-3 shadow-md">
+      
+      <!-- Left: Title Only -->
+      <div class="flex items-center">
+        <span class="font-bold text-lg" id="dashboardTitle">Hospital Dashboard</span>
+      </div>
+      <!-- Center: Navigation Links -->
+      <div class="flex items-center space-x-6">
+        <a href="#" class="hover:underline">🏠 Home</a>
+        <a href="patient.html" class="hover:underline">➕ Add Patient</a>
+        <a href="history.html" class="hover:underline">📜 History</a>
+        <a href="search.html" class="hover:underline">🔍 Search</a>
+      </div>
+      <!-- Right: Hospital Name + Logout -->
+      <div class="flex items-center space-x-3">
+        <span class="font-semibold" id="hospitalNameNav"></span>
+        <button onclick="logout()" 
+                class="bg-white text-blue-600 px-3 py-1 rounded hover:bg-gray-200">
+          Logout
+        </button>
+      </div>
+    </div>
+    <!-- Workspace -->
+    <div class="flex-1 p-8 relative">
+      <!-- Date and Day (top-right corner) -->
+      <div class="absolute top-4 right-8 bg-white shadow px-4 py-2 rounded text-gray-700 font-medium" id="dateDay"></div>
+      <!-- Welcome Section -->
+      <div id="welcomeSection" class="text-center mt-8">
+        <h1 class="text-3xl font-bold text-gray-800 mb-2" id="hospitalNameWelcome"></h1>
+        <p class="text-gray-600 mb-8">Your one-stop dashboard to manage patients, doctors, and hospital records efficiently.</p>
+        <!-- Dashboard Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 max-w-6xl mx-auto">
+          <div class="bg-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition">
+            <div class="text-blue-600 text-4xl mb-2">👨‍⚕️</div>
+            <h2 class="text-2xl font-bold text-blue-600" id="patientsCount">120</h2>
+            <p class="text-gray-600">Patients</p>
+          </div>
+          <div class="bg-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition">
+            <div class="text-green-600 text-4xl mb-2">🩺</div>
+            <h2 class="text-2xl font-bold text-green-600">25</h2>
+            <p class="text-gray-600">Doctors</p>
+          </div>
+          <div class="bg-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition">
+            <div class="text-purple-600 text-4xl mb-2">🛏️</div>
+            <h2 class="text-2xl font-bold text-purple-600">50</h2>
+            <p class="text-gray-600">Available Beds</p>
+          </div>
+          <div class="bg-white p-6 rounded-lg shadow-md text-center hover:shadow-lg transition">
+            <div class="text-orange-600 text-4xl mb-2">📅</div>
+            <h2 class="text-2xl font-bold text-orange-600">10</h2>
+            <p class="text-gray-600">Appointments</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Script -->
+  <script>
+    const dateDay = document.getElementById("dateDay");
+    const patientsCount = document.getElementById("patientsCount");
+    
+    // Display current date and day
+    function updateDateDay() {
+      const now = new Date();
+      const options = { weekday: "long", year: "numeric", month: "long", day: "numeric" };
+      dateDay.textContent = now.toLocaleDateString("en-US", options);
+    }
+    updateDateDay();
+    
+    // Hospital name from login
+    const hospitalName = localStorage.getItem("hospitalName") || "Unknown Hospital";
+    document.getElementById("hospitalNameNav").textContent = hospitalName;
+    document.getElementById("hospitalNameWelcome").textContent = `🏥 Welcome to ${hospitalName}`;
+    
+    // Update page title and dashboard title
+    document.getElementById("pageTitle").textContent = `${hospitalName} Dashboard`;
+    document.getElementById("dashboardTitle").textContent = `${hospitalName} Dashboard`;
+    
+    // Logout
+    function logout() {
+      localStorage.clear();
+      window.location.href = "login.html";
+    }
+  </script>
+</body>
+</html>

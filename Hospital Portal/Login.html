@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hospital Login & Registration</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, getDocs } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyADkeizR7KUWwPUdSAQ_hq3-ZCbLrZzbHY",
+      authDomain: "healthbuddie-9665e.firebaseapp.com",
+      projectId: "healthbuddie-9665e",
+      storageBucket: "healthbuddie-9665e.appspot.com",
+      messagingSenderId: "1060838744826",
+      appId: "1:1060838744826:web:03f3918fa3498e730b9f43"
+    };
+
+    let db;
+    const statusEl = document.createElement("div");
+    statusEl.id = "firebaseStatus";
+    statusEl.className = "fixed bottom-2 left-2 p-2 rounded-full text-white font-bold";
+    document.body.appendChild(statusEl);
+
+    try {
+      const app = initializeApp(firebaseConfig);
+      db = getFirestore(app);
+      window.db = db;
+      statusEl.textContent = "✅ Firebase Connected";
+      statusEl.style.backgroundColor = "green";
+    } catch (err) {
+      console.error(err);
+      statusEl.textContent = "❌ Firebase Connection Failed";
+      statusEl.style.backgroundColor = "red";
+    }
+
+    // State → District data
+    const stateDistricts = {
+      "Kerala": [
+        "Thiruvananthapuram", "Kollam", "Pathanamthitta", "Alappuzha",
+        "Kottayam", "Idukki", "Ernakulam", "Thrissur",
+        "Palakkad", "Malappuram", "Kozhikode", "Wayanad",
+        "Kannur", "Kasaragod"
+      ],
+      "Tamil Nadu": [
+        "Ariyalur", "Chengalpattu", "Chennai", "Coimbatore",
+        "Cuddalore", "Dharmapuri", "Dindigul", "Erode",
+        "Kallakurichi", "Kanchipuram", "Kanyakumari", "Karur",
+        "Krishnagiri", "Madurai", "Mayiladuthurai", "Nagapattinam",
+        "Namakkal", "Nilgiris", "Perambalur", "Pudukkottai",
+        "Ramanathapuram", "Ranipet", "Salem", "Sivaganga",
+        "Tenkasi", "Thanjavur", "Theni", "Thoothukudi",
+        "Tiruchirappalli", "Tirunelveli", "Tirupathur", "Tiruppur",
+        "Tiruvallur", "Tiruvannamalai", "Tiruvarur", "Vellore",
+        "Viluppuram", "Virudhunagar"
+      ]
+    };
+
+    function loadStates() {
+      const stateSelect = document.getElementById("state");
+      Object.keys(stateDistricts).forEach(state => {
+        const opt = document.createElement("option");
+        opt.value = state;
+        opt.textContent = state;
+        stateSelect.appendChild(opt);
+      });
+    }
+
+    function loadDistricts() {
+      const state = document.getElementById("state").value;
+      const districtSelect = document.getElementById("district");
+      districtSelect.innerHTML = '<option value="">-- Select District --</option>';
+
+      if (state && stateDistricts[state]) {
+        stateDistricts[state].forEach(district => {
+          const opt = document.createElement("option");
+          opt.value = district;
+          opt.textContent = district;
+          districtSelect.appendChild(opt);
+        });
+        districtSelect.classList.remove("hidden");
+      } else {
+        districtSelect.classList.add("hidden");
+      }
+    }
+
+    async function registerHospital(e) {
+      e.preventDefault();
+
+      const hospital = document.getElementById("hospital").value.trim();
+      const userId = document.getElementById("newUserId").value;
+      const password = document.getElementById("newPassword").value;
+      const confirmPassword = document.getElementById("confirmPassword").value;
+      const state = document.getElementById("state").value;
+      const district = document.getElementById("district").value;
+
+      // Password validation: min 8, 1 uppercase, 1 number, 1 special char
+      const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*])[A-Za-z\d!@#$%^&*]{8,}$/;
+      if (!passwordRegex.test(password)) {
+        alert("❌ Password must be at least 8 characters, include 1 uppercase letter, 1 number, and 1 special character!");
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        alert("❌ Passwords do not match!");
+        return;
+      }
+
+      try {
+        const docRef = doc(db, "hospitals", hospital);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists() && docSnap.data()[userId]) {
+          alert("⚠ User already exists! Redirecting to login.");
+          showLogin();
+          return;
+        }
+
+        await setDoc(docRef, {
+          [userId]: password,
+          state,
+          district
+        }, { merge: true });
+
+        alert(`✅ Registration successful for ${hospital}`);
+        showLogin();
+      } catch (err) {
+        console.error(err);
+        alert("❌ Registration failed. Check console for errors.");
+        statusEl.textContent = "❌ Firebase Connection Lost";
+        statusEl.style.backgroundColor = "red";
+      }
+    }
+
+    // Replace your current login function with this:
+async function login(e) {
+  e.preventDefault();
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+  try {
+    const hospitals = await getDocs(collection(db, "hospitals"));
+    let found = false;
+    let hospitalName = "";
+    
+    hospitals.forEach(doc => {
+      const data = doc.data();
+      if (data[username] === password) {
+        found = true;
+        hospitalName = doc.id; // Hospital name is the document ID
+      }
+    });
+    
+    if (found) {
+      // Store both username and hospital name in localStorage
+      localStorage.setItem("username", username);
+      localStorage.setItem("hospitalName", hospitalName);
+      
+      alert("✅ Login Successful! Welcome " + username);
+      window.location.href = "Dashboard.html";
+    } else {
+      alert("❌ Invalid credentials! Please register first.");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("❌ Login failed. Check console for errors.");
+    statusEl.textContent = "❌ Firebase Connection Lost";
+    statusEl.style.backgroundColor = "red";
+  }
+}
+
+
+    function showRegistration() {
+      document.getElementById("loginCard").classList.add("hidden");
+      document.getElementById("registerCard").classList.remove("hidden");
+    }
+
+    function showLogin() {
+      document.getElementById("registerCard").classList.add("hidden");
+      document.getElementById("loginCard").classList.remove("hidden");
+    }
+
+    window.loadStates = loadStates;
+    window.loadDistricts = loadDistricts;
+    window.registerHospital = registerHospital;
+    window.login = login;
+    window.showRegistration = showRegistration;
+    window.showLogin = showLogin;
+
+    loadStates();
+  </script>
+</head>
+
+<body class="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-100 to-blue-300">
+
+  <!-- Login Card -->
+  <div class="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-md" id="loginCard">
+    <div class="text-center mb-6">
+      <div class="text-5xl mb-2">🏥</div>
+      <h1 class="text-3xl font-bold text-blue-700">Hospital Login</h1>
+      <p class="text-gray-500">Please enter your credentials</p>
+    </div>
+
+    <form onsubmit="login(event)" class="space-y-4">
+      <input type="text" id="username" placeholder="🏥 User ID" class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" required />
+      <input type="password" id="password" placeholder="🔑 Password" class="w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400" required />
+      <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition transform hover:scale-[1.02]">
+        🔒 Login
+      </button>
+    </form>
+
+    <p class="text-sm text-gray-500 mt-6 text-center">
+      <a href="#" onclick="showRegistration()" class="text-blue-600 hover:underline">📝 New Registration for Hospital</a>
+    </p>
+  </div>
+
+  <!-- Registration Card -->
+  <div class="bg-white shadow-2xl rounded-2xl p-8 w-full max-w-md hidden" id="registerCard">
+    <div class="text-center mb-6">
+      <div class="text-5xl mb-2">📝</div>
+      <h1 class="text-3xl font-bold text-green-700">Hospital Registration</h1>
+      <p class="text-gray-500">Register a new hospital account</p>
+    </div>
+
+    <form onsubmit="registerHospital(event)" class="space-y-4">
+      <select id="state" onchange="loadDistricts()" class="w-full px-4 py-3 border rounded-lg" required>
+        <option value="">-- Select State --</option>
+      </select>
+
+      <select id="district" class="w-full px-4 py-3 border rounded-lg hidden" required>
+        <option value="">-- Select District --</option>
+      </select>
+
+      <input type="text" id="hospital" placeholder="🏥 Enter Hospital Name" class="w-full px-4 py-3 border rounded-lg" required />
+      <input type="text" id="newUserId" placeholder="👤 User ID" class="w-full px-4 py-3 border rounded-lg" required />
+      <input type="password" id="newPassword" placeholder="🔑 Password" class="w-full px-4 py-3 border rounded-lg" required />
+      <input type="password" id="confirmPassword" placeholder="🔑 Confirm Password" class="w-full px-4 py-3 border rounded-lg" required />
+
+      <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition transform hover:scale-[1.02]">
+        ✅ Register
+      </button>
+
+      <!-- Back to Login Button -->
+      <button type="button" onclick="showLogin()" class="w-full mt-2 bg-gray-200 text-gray-700 py-2 rounded-lg hover:bg-gray-300 transition text-sm">
+        🔙 Back to Login
+      </button>
+    </form>
+  </div>
+</body>
+</html>
